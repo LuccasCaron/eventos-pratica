@@ -11,7 +11,7 @@ const Navbar = () => {
 
   const links = [
     { to: "/", label: "Início" },
-    { to: "/formulario", label: "Formulário" },
+    { to: "/formulario", label: "Orçamento" },
     { to: "/agendamento", label: "Agendamento" },
     { to: "/chat", label: "Chat" },
   ];

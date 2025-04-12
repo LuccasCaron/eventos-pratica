@@ -20,7 +20,7 @@ export default function Footer() {
             </li>
             <li>
               <a href="/formulario" className="hover:underline text-gray-300">
-                Formulário
+                Orçamento
               </a>
             </li>
             <li>
