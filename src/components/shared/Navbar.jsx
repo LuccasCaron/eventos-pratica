@@ -20,10 +20,7 @@ const Navbar = () => {
 
   return (
     <header className="bg-[#0f172a] text-white shadow-lg">
-      <div
-        className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center
-      "
-      >
+      <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
         <Link to="/">
           <img src={logo} alt="L&L Festas e Eventos" className="h-14 md:h-18" />
         </Link>
@@ -63,8 +60,8 @@ const Navbar = () => {
               onClick={() => setIsOpen(false)}
               className={`block py-2 px-2 rounded-md transition-colors duration-150 ${
                 isActive(link.to)
-                  ? "bg-cyan-500 text-white"
-                  : "text-white hover:bg-blue-200"
+                  ? "bg-blue-900 text-white"
+                  : "text-white hover:bg-blue-900"
               }`}
             >
               {link.label}

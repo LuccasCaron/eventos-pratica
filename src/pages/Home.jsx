@@ -34,7 +34,7 @@ export default function Home() {
       style={{ backgroundImage: `url(${bgTextura})` }}
     >
       <section className="px-4 md:px-12 py-8 max-w-screen-xl mx-auto">
-        <h2 className="text-3xl font-bold text-blue-950 mb-6 text-center font-cormorant">
+        <h2 className="text-4xl font-bold text-blue-950 mb-6 text-center font-cormorant">
           Bem-vindo à L&L Eventos e Locações
         </h2>
 
