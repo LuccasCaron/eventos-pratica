@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import logo from "../../assets/imagens/logo2.png";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,9 +20,12 @@ const Navbar = () => {
 
   return (
     <header className="bg-[#0f172a] text-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold tracking-wide text-cyan-400">
-          L&L Festas e Eventos
+      <div
+        className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center
+      "
+      >
+        <Link to="/">
+          <img src={logo} alt="L&L Festas e Eventos" className="h-14 md:h-18" />
         </Link>
 
         <div className="md:hidden">
@@ -36,12 +40,14 @@ const Navbar = () => {
               key={link.to}
               to={link.to}
               className={`relative font-medium transition-colors duration-200 ${
-                isActive(link.to) ? "text-cyan-400" : "text-white hover:text-cyan-300"
+                isActive(link.to)
+                  ? "text-blue-200"
+                  : "text-white hover:text-blue-200"
               }`}
             >
               {link.label}
               {isActive(link.to) && (
-                <span className="absolute bottom-[-6px] left-0 w-full h-0.5 bg-cyan-400 rounded-full" />
+                <span className="absolute bottom-[-6px] left-0 w-full h-0.5 bg-blue-200 rounded-full" />
               )}
             </Link>
           ))}
@@ -56,7 +62,9 @@ const Navbar = () => {
               to={link.to}
               onClick={() => setIsOpen(false)}
               className={`block py-2 px-2 rounded-md transition-colors duration-150 ${
-                isActive(link.to) ? "bg-cyan-500 text-white" : "text-white hover:bg-cyan-700"
+                isActive(link.to)
+                  ? "bg-cyan-500 text-white"
+                  : "text-white hover:bg-blue-200"
               }`}
             >
               {link.label}

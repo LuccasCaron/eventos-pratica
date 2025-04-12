@@ -1,31 +1,38 @@
-import { useState } from 'react'
+import { useState } from "react";
 
 export default function Formulario() {
   const [form, setForm] = useState({
-    nome: '',
-    email: '',
-    data: '',
-    tipo: '',
-    mensagem: '',
-  })
+    nome: "",
+    email: "",
+    data: "",
+    tipo: "",
+    mensagem: "",
+  });
 
   function handleChange(e) {
-    const { name, value } = e.target
-    setForm(prev => ({ ...prev, [name]: value }))
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   }
 
   function handleSubmit(e) {
-    e.preventDefault()
-    console.log('Dados enviados:', form)
-    alert('Solicitação enviada com sucesso!')
+    e.preventDefault();
+    console.log("Dados enviados:", form);
+    alert("Solicitação enviada com sucesso!");
   }
 
   return (
     <section className="px-4 md:px-12 py-8 max-w-xl mx-auto">
-      <h2 className="text-3xl font-bold text-cyan-600 mb-6 text-center">Solicite seu orçamento</h2>
-      <form onSubmit={handleSubmit} className="bg-white shadow-xl rounded-2xl p-6 space-y-4 border border-gray-200">
+      <h2 className="text-3xl font-bold text-blue-950 mb-6 text-center">
+        Solicite seu orçamento
+      </h2>
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow-xl rounded-2xl p-6 space-y-4 border border-gray-200"
+      >
         <div>
-          <label className="block mb-1 text-sm font-semibold text-[#0f172a]">Nome completo</label>
+          <label className="block mb-1 text-sm font-semibold text-[#0f172a]">
+            Nome completo
+          </label>
           <input
             type="text"
             name="nome"
@@ -37,7 +44,9 @@ export default function Formulario() {
         </div>
 
         <div>
-          <label className="block mb-1 text-sm font-semibold text-[#0f172a]">E-mail</label>
+          <label className="block mb-1 text-sm font-semibold text-[#0f172a]">
+            E-mail
+          </label>
           <input
             type="email"
             name="email"
@@ -49,7 +58,9 @@ export default function Formulario() {
         </div>
 
         <div>
-          <label className="block mb-1 text-sm font-semibold text-[#0f172a]">Data do evento</label>
+          <label className="block mb-1 text-sm font-semibold text-[#0f172a]">
+            Data do evento
+          </label>
           <input
             type="date"
             name="data"
@@ -61,7 +72,9 @@ export default function Formulario() {
         </div>
 
         <div>
-          <label className="block mb-1 text-sm font-semibold text-[#0f172a]">Tipo de evento</label>
+          <label className="block mb-1 text-sm font-semibold text-[#0f172a]">
+            Tipo de evento
+          </label>
           <select
             name="tipo"
             value={form.tipo}
@@ -79,7 +92,9 @@ export default function Formulario() {
         </div>
 
         <div>
-          <label className="block mb-1 text-sm font-semibold text-[#0f172a]">Mensagem adicional</label>
+          <label className="block mb-1 text-sm font-semibold text-[#0f172a]">
+            Mensagem adicional
+          </label>
           <textarea
             name="mensagem"
             value={form.mensagem}
@@ -97,5 +112,5 @@ export default function Formulario() {
         </button>
       </form>
     </section>
-  )
+  );
 }
