@@ -13,6 +13,7 @@ export default function Mimaqui() {
     tema: "",
     temaPersonalizado: "",
     mensagem: "",
+    servicos: [],
   });
 
   const [showModal, setShowModal] = useState(false);
@@ -331,10 +332,6 @@ export default function Mimaqui() {
                       </span>{" "}
                       <span className="text-blue-600">+R$ 300</span>
                     </li>
-                    <h4 className="font-semibold text-blue-950 mt-4">
-                      Personalizado:
-                    </h4>
-                    <p className="font-semibold text-blue-950">R$ 1000</p>
                   </ul>
                 </div>
               )}

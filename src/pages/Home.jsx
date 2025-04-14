@@ -17,6 +17,14 @@ import galeria4 from "../assets/imagens/evento4.jpg";
 import galeria5 from "../assets/imagens/evento5.jpg";
 import galeria6 from "../assets/imagens/evento6.jpg";
 import bgTextura from "../assets/imagens/bg-textura.png";
+import bilhete from "../assets/imagens/bilhete.png";
+import buffet from "../assets/imagens/buffet.png";
+import diaNoiva from "../assets/imagens/diaNoiva.png";
+import festaCompleto from "../assets/imagens/festaCompleto.png";
+import festaPerso from "../assets/imagens/festaPerso.png";
+import fotoNoivos from "../assets/imagens/fotoNoivos.png";
+import musica from "../assets/imagens/musica.png";
+import transporte from "../assets/imagens/transporte.png";
 
 export default function Home() {
   const settings = {
@@ -144,6 +152,98 @@ export default function Home() {
               seus convidados.
             </p>
           </motion.div>
+        </div>
+
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold text-blue-950 text-center mb-8">
+            Serviços
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="service-card">
+              <img
+                src={bilhete}
+                alt="Convites e Papelaria Personalizada"
+                className="w-full h-64 object-cover rounded-lg"
+              />
+              <h3 className="text-lg font-semibold text-blue-950 mt-4">
+                Convites e Papelaria Personalizada
+              </h3>
+              <p className="text-sm text-gray-700">
+                Convites e papelaria criados com detalhes que tornam seu
+                casamento único e especial.
+              </p>
+            </div>
+            <div className="service-card">
+              <img
+                src={buffet}
+                alt="Buffet Gourmet"
+                className="w-full h-64 object-cover rounded-lg"
+              />
+              <h3 className="text-lg font-semibold text-blue-950 mt-4">
+                Buffet Gourmet
+              </h3>
+              <p className="text-sm text-gray-700">
+                Cardápios elaborados com ingredientes selecionados, oferecendo
+                uma experiência gastronômica memorável para os convidados.
+              </p>
+            </div>
+            <div className="service-card">
+              <img
+                src={diaNoiva}
+                alt="Dia da Noiva e do Noivo"
+                className="w-full h-64 object-cover rounded-lg"
+              />
+              <h3 className="text-lg font-semibold text-blue-950 mt-4">
+                Dia da Noiva e do Noivo
+              </h3>
+              <p className="text-sm text-gray-700">
+                Momento de preparação e cuidado para os noivos antes do grande
+                dia, com serviços de beleza e relaxamento.
+              </p>
+            </div>
+            <div className="service-card">
+              <img
+                src={festaPerso}
+                alt="Decoração Personalizada"
+                className="w-full h-64 object-cover rounded-lg"
+              />
+              <h3 className="text-lg font-semibold text-blue-950 mt-4">
+                Decoração Personalizada
+              </h3>
+              <p className="text-sm text-gray-700">
+                Decoração feita sob medida, com detalhes que refletem a
+                personalidade dos noivos e criam o ambiente dos sonhos.
+              </p>
+            </div>
+            <div className="service-card">
+              <img
+                src={fotoNoivos}
+                alt="Fotografia e Filmagem"
+                className="w-full h-64 object-cover rounded-lg"
+              />
+              <h3 className="text-lg font-semibold text-blue-950 mt-4">
+                Fotografia e Filmagem
+              </h3>
+              <p className="text-sm text-gray-700">
+                Registro dos momentos mais especiais do seu grande dia com
+                qualidade e sensibilidade.
+              </p>
+            </div>
+            <div className="service-card">
+              <img
+                src={musica}
+                alt="Música ao Vivo"
+                className="w-full h-64 object-cover rounded-lg"
+              />
+              <h3 className="text-lg font-semibold text-blue-950 mt-4">
+                Música ao Vivo
+              </h3>
+              <p className="text-sm text-gray-700">
+                Seleção de músicos e bandas para embalar cada momento da
+                cerimônia e festa com trilhas sonoras emocionantes.
+              </p>
+            </div>
+          </div>
         </div>
 
         <motion.div
