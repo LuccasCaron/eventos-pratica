@@ -159,7 +159,12 @@ export default function Home() {
             Serviços
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="service-card">
+            <motion.div
+              className="service-card"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
               <img
                 src={bilhete}
                 alt="Convites e Papelaria Personalizada"
@@ -172,8 +177,14 @@ export default function Home() {
                 Convites e papelaria criados com detalhes que tornam seu
                 casamento único e especial.
               </p>
-            </div>
-            <div className="service-card">
+            </motion.div>
+
+            <motion.div
+              className="service-card"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
               <img
                 src={buffet}
                 alt="Buffet Gourmet"
@@ -186,8 +197,14 @@ export default function Home() {
                 Cardápios elaborados com ingredientes selecionados, oferecendo
                 uma experiência gastronômica memorável para os convidados.
               </p>
-            </div>
-            <div className="service-card">
+            </motion.div>
+
+            <motion.div
+              className="service-card"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
               <img
                 src={diaNoiva}
                 alt="Dia da Noiva e do Noivo"
@@ -200,8 +217,14 @@ export default function Home() {
                 Momento de preparação e cuidado para os noivos antes do grande
                 dia, com serviços de beleza e relaxamento.
               </p>
-            </div>
-            <div className="service-card">
+            </motion.div>
+
+            <motion.div
+              className="service-card"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
               <img
                 src={festaPerso}
                 alt="Decoração Personalizada"
@@ -214,8 +237,14 @@ export default function Home() {
                 Decoração feita sob medida, com detalhes que refletem a
                 personalidade dos noivos e criam o ambiente dos sonhos.
               </p>
-            </div>
-            <div className="service-card">
+            </motion.div>
+
+            <motion.div
+              className="service-card"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
               <img
                 src={fotoNoivos}
                 alt="Fotografia e Filmagem"
@@ -228,8 +257,14 @@ export default function Home() {
                 Registro dos momentos mais especiais do seu grande dia com
                 qualidade e sensibilidade.
               </p>
-            </div>
-            <div className="service-card">
+            </motion.div>
+
+            <motion.div
+              className="service-card"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
               <img
                 src={musica}
                 alt="Música ao Vivo"
@@ -242,7 +277,7 @@ export default function Home() {
                 Seleção de músicos e bandas para embalar cada momento da
                 cerimônia e festa com trilhas sonoras emocionantes.
               </p>
-            </div>
+            </motion.div>
           </div>
         </div>
 
