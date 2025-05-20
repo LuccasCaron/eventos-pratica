@@ -1,67 +1,46 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import bgTextura from "../assets/imagens/bg-textura.png";
-import { FaTrashAlt } from "react-icons/fa";
+import { useEffect, useState } from "react"
+import { useNavigate, useSearchParams } from "react-router-dom"
+import bgTextura from "../assets/imagens/bg-textura.png"
+import { FaTrashAlt } from "react-icons/fa"
 
 export default function Agendamento() {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const protocolo = searchParams.get("protocolo");
-  const [inputProtocolo, setInputProtocolo] = useState("");
-  const [buscarClicado, setBuscarClicado] = useState(false);
-
-  const agendamentos = {
-    1234: {
-      data: "2025-06-22",
-      horario: "19:00",
-      convidadosPermitidos: 150,
-      convidados: [
-        { nome: "Ana Souza", confirmado: true },
-        { nome: "Carlos Lima", confirmado: false },
-        { nome: "Marina Dias", confirmado: true },
-        { nome: "João Mendes", confirmado: true },
-        { nome: "Lucas Freitas", confirmado: false },
-      ],
-    },
-    5678: {
-      data: "2025-07-15",
-      horario: "21:30",
-      convidadosPermitidos: 100,
-      convidados: [
-        { nome: "Fernanda Alves", confirmado: true },
-        { nome: "Bruno Rocha", confirmado: true },
-        { nome: "Isabela Torres", confirmado: false },
-        { nome: "Diego Martins", confirmado: false },
-        { nome: "Clara Silva", confirmado: true },
-      ],
-    },
-  };
-
-  const agendamento = agendamentos[protocolo];
-  const [confirmados, setConfirmados] = useState(0);
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const protocolo = searchParams.get("protocolo") || ""
+  const [inputProtocolo, setInputProtocolo] = useState("")
+  const [buscarClicado, setBuscarClicado] = useState(false)
+  const [agendamento, setAgendamento] = useState(null)
+  const [error, setError] = useState("")
 
   useEffect(() => {
-    if (!agendamento) return;
-
-    const totalConfirmados = agendamento.convidados.filter(
-      (c) => c.confirmado
-    ).length;
-
-    setConfirmados(totalConfirmados);
-  }, [agendamento]);
+    if (!protocolo) return
+    setError("")
+    fetch(`http://localhost:3000/agendamento/${protocolo}`)
+      .then(res => {
+        if (!res.ok) throw new Error("Não encontrado")
+        return res.json()
+      })
+      .then(data => setAgendamento(data))
+      .catch(() => setAgendamento(null) || setError("Agendamento não encontrado"))
+  }, [protocolo])
 
   function handleBuscar() {
-    if (inputProtocolo.trim() !== "") {
-      navigate(`?protocolo=${inputProtocolo.trim()}`);
-      setBuscarClicado(true);
-    }
+    if (!inputProtocolo.trim()) return
+    navigate(`?protocolo=${inputProtocolo.trim()}`)
+    setBuscarClicado(true)
   }
 
   function handleLimpar() {
-    setInputProtocolo("");
-    navigate("?");
-    setBuscarClicado(false);
+    setInputProtocolo("")
+    navigate("?")
+    setBuscarClicado(false)
+    setAgendamento(null)
+    setError("")
   }
+
+  const confirmados = agendamento
+    ? agendamento.convidados.filter(c => c.status === "CONFIRMADO").length
+    : 0
 
   return (
     <div
@@ -78,8 +57,8 @@ export default function Agendamento() {
             type="text"
             placeholder="Digite o protocolo"
             value={inputProtocolo}
-            onChange={(e) => setInputProtocolo(e.target.value)}
-            className="w-full sm:w-auto px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            onChange={e => setInputProtocolo(e.target.value)}
+            className="w-full sm:w-auto px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-600"
           />
           <button
             onClick={handleBuscar}
@@ -87,7 +66,6 @@ export default function Agendamento() {
           >
             Buscar
           </button>
-
           <button
             onClick={handleLimpar}
             className="text-gray-600 hover:text-gray-800 transition-all"
@@ -96,9 +74,9 @@ export default function Agendamento() {
           </button>
         </div>
 
-        {buscarClicado && !agendamento && inputProtocolo.trim() !== "" && (
+        {buscarClicado && error && (
           <p className="text-center text-blue-950 text-xl font-medium mb-6">
-            Agendamento não encontrado.
+            {error}
           </p>
         )}
 
@@ -107,21 +85,14 @@ export default function Agendamento() {
             <div className="bg-white shadow-xl rounded-2xl p-6 mb-8 border border-gray-200">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700">
                 <p>
-                  <span className="font-medium">Data:</span> {agendamento.data}
+                  <span className="font-medium">Data:</span> {new Date(agendamento.data).toLocaleDateString()}
                 </p>
                 <p>
-                  <span className="font-medium">Horário:</span>{" "}
-                  {agendamento.horario}
-                </p>
-                <p>
-                  <span className="font-medium">Convidados Permitidos:</span>{" "}
-                  {agendamento.convidadosPermitidos}
+                  <span className="font-medium">Horário:</span> {agendamento.horario}
                 </p>
                 <p>
                   <span className="font-medium">Convidados Confirmados:</span>{" "}
-                  <span className="text-green-600 font-semibold">
-                    {confirmados}
-                  </span>
+                  <span className="text-green-600 font-semibold">{confirmados}</span>
                 </p>
               </div>
             </div>
@@ -136,18 +107,18 @@ export default function Agendamento() {
                   <li
                     key={i}
                     className={`flex justify-between items-center px-4 py-3 rounded-xl shadow-md transition-all duration-200 ${
-                      c.confirmado
+                      c.status === "CONFIRMADO"
                         ? "bg-green-50 border border-green-200"
                         : "bg-red-50 border border-red-200"
                     }`}
                   >
-                    <span className="font-medium">{c.nome}</span>
+                    <span className="font-medium">{c.nome || c.email}</span>
                     <span
                       className={`text-sm font-semibold uppercase tracking-wide ${
-                        c.confirmado ? "text-green-700" : "text-red-700"
+                        c.status === "CONFIRMADO" ? "text-green-700" : "text-red-700"
                       }`}
                     >
-                      {c.confirmado ? "Confirmado" : "Pendente"}
+                      {c.status === "CONFIRMADO" ? "Confirmado" : "Pendente"}
                     </span>
                   </li>
                 ))}
@@ -157,5 +128,5 @@ export default function Agendamento() {
         )}
       </section>
     </div>
-  );
+  )
 }

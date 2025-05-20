@@ -1,49 +1,52 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, Info } from "lucide-react";
+import { Info } from "lucide-react";
 import bgTextura from "../assets/imagens/bg-textura.png";
 
-export default function Mimaqui() {
+export default function Formulario() {
   const [form, setForm] = useState({
-    nome: "",
-    email: "",
+    organizadorNome: "",
+    organizadorEmail: "",
     data: "",
+    hora: "",
     tipo: "",
     convidados: "",
     tema: "",
     temaPersonalizado: "",
     mensagem: "",
-    servicos: [],
   });
-
   const [showModal, setShowModal] = useState(false);
   const [resumo, setResumo] = useState(null);
+  const [convidados, setConvidados] = useState([]);
+  const [inputConvidado, setInputConvidado] = useState("");
 
-  const valoresPorConvidado = 20;
+  const valoresPorConvidado = 120;
   const temas = {
-    "balada neon": 500,
-    "anos 80": 600,
-    tropical: 550,
-    masquerade: 700,
-    luxo: 800,
-    personalizado: 1000,
+    "balada neon": 1200,
+    "anos 80": 1500,
+    tropical: 1400,
+    masquerade: 1800,
+    luxo: 2500,
+    personalizado: 3500,
   };
 
   function calcularPreco() {
-    const convidados = parseInt(form.convidados) || 0;
+    const lista = form.convidados
+      .split(",")
+      .map((e) => e.trim())
+      .filter((e) => e);
+    const count = lista.length;
     const hoje = new Date();
     const dataEvento = new Date(form.data);
-    const diasParaEvento = (dataEvento - hoje) / (1000 * 60 * 60 * 24);
-    const acrescimoUrgencia = diasParaEvento <= 15 ? 300 : 0;
+    const dias = (dataEvento - hoje) / (1000 * 60 * 60 * 24);
+    const urg = dias <= 15 ? 300 : 0;
     const precoTema = temas[form.tema] || 0;
-    const total =
-      convidados * valoresPorConvidado + precoTema + acrescimoUrgencia;
-
+    const total = count * valoresPorConvidado + precoTema + urg;
     return {
-      convidados,
-      precoPorConvidado: convidados * valoresPorConvidado,
+      convidados: count,
+      precoPorConvidado: count * valoresPorConvidado,
       precoTema,
-      acrescimoUrgencia,
+      acrescimoUrgencia: urg,
       total,
     };
   }
@@ -53,10 +56,50 @@ export default function Mimaqui() {
     setForm((prev) => ({ ...prev, [name]: value }));
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
+
+    const emailsValidos = convidados
+      .map((email) => email.trim())
+      .filter((email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+
+    if (emailsValidos.length === 0) {
+      alert("Adicione ao menos 1 e-mail válido");
+      return;
+    }
+
     const resumoValores = calcularPreco();
-    setResumo(resumoValores);
+    const payload = {
+      nome: form.organizadorNome,
+      organizadorEmail: form.organizadorEmail,
+      data: form.data,
+      horario: form.hora,
+      tipo: form.tipo,
+      info: form.mensagem,
+      tema: form.tema === "personalizado" ? form.temaPersonalizado : form.tema,
+      convidados: emailsValidos.map((email) => ({ nome: "", email })),
+    };
+
+    const res = await fetch("http://localhost:3000/agendamento", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const msg = await res.text();
+      console.error("Erro backend:", msg);
+      alert("Erro ao enviar agendamento.");
+      return;
+    }
+
+    const data = await res.json().catch(() => ({}));
+    if (!data.token) {
+      alert("Erro ao agendar. Verifique os dados e tente novamente.");
+      return;
+    }
+
+    setResumo({ ...resumoValores, token: data.token });
     setShowModal(true);
   }
 
@@ -66,54 +109,42 @@ export default function Mimaqui() {
       style={{ backgroundImage: `url(${bgTextura})` }}
     >
       <section className="max-w-3xl mx-auto bg-white shadow-2xl rounded-3xl p-8 relative overflow-hidden border border-blue-100">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="absolute -top-4 -right-4 text-blue-950 opacity-20 text-8xl pointer-events-none"
-        >
-          <Sparkles className="w-24 h-24 animate-pulse" />
-        </motion.div>
-
         <h2 className="text-center text-4xl font-extrabold text-blue-950 mb-8">
           Verifique os Valores ✨
         </h2>
-
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-blue-900 mb-1">
-                Nome completo
+                Nome do Organizador
               </label>
               <input
                 type="text"
-                name="nome"
-                value={form.nome}
+                name="organizadorNome"
+                value={form.organizadorNome}
                 onChange={handleChange}
                 className="w-full border border-blue-100 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-950"
                 required
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-blue-900 mb-1">
-                E-mail
+                E-mail do Organizador
               </label>
               <input
                 type="email"
-                name="email"
-                value={form.email}
+                name="organizadorEmail"
+                value={form.organizadorEmail}
                 onChange={handleChange}
                 className="w-full border border-blue-100 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-950"
                 required
               />
             </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className="block text-sm font-medium text-blue-900 mb-1">
-                Data do evento
+                Data do Evento
               </label>
               <input
                 type="date"
@@ -124,10 +155,22 @@ export default function Mimaqui() {
                 required
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-blue-900 mb-1">
-                Tipo de evento
+                Horário
+              </label>
+              <input
+                type="time"
+                name="hora"
+                value={form.hora}
+                onChange={handleChange}
+                className="w-full border border-blue-100 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-950"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-blue-900 mb-1">
+                Tipo de Evento
               </label>
               <select
                 name="tipo"
@@ -145,62 +188,87 @@ export default function Mimaqui() {
               </select>
             </div>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-blue-900 mb-1">
-                Quantidade de convidados
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-blue-900">
+                E-mails dos Convidados
               </label>
-              <input
-                type="number"
-                name="convidados"
-                value={form.convidados}
-                onChange={handleChange}
-                className="w-full border border-blue-100 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-950"
-                required
-              />
+              <div className="border border-blue-100 rounded-xl p-2 max-h-32 overflow-y-auto">
+                <div className="flex flex-wrap gap-2">
+                  {convidados.map((email, i) => (
+                    <span
+                      key={i}
+                      className="w-full md:w-auto flex items-center gap-2 bg-blue-100 text-blue-900 px-3 py-1 rounded-full text-sm"
+                    >
+                      {email}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setConvidados(
+                            convidados.filter((_, idx) => idx !== i)
+                          )
+                        }
+                        className="text-blue-800 hover:text-blue-950"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                  <input
+                    type="email"
+                    placeholder="Digite e pressione Enter"
+                    className="flex-1 border-none outline-none bg-transparent text-sm min-w-[180px]"
+                    value={inputConvidado}
+                    onChange={(e) => setInputConvidado(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === ",") {
+                        e.preventDefault();
+                        const email = inputConvidado.trim();
+                        if (email && !convidados.includes(email)) {
+                          setConvidados([...convidados, email]);
+                          setInputConvidado("");
+                        }
+                      }
+                    }}
+                  />
+                </div>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-blue-900 mb-1">
-                Tema da festa
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-blue-900">
+                Tema da Festa
               </label>
               <select
                 name="tema"
                 value={form.tema}
                 onChange={handleChange}
-                className="w-full border border-blue-100 rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-950"
+                className="w-full border border-blue-100 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-950"
                 required
               >
                 <option value="">Escolha um tema</option>
-                {Object.keys(temas).map((tema) => (
-                  <option key={tema} value={tema}>
-                    {tema}
+                {Object.keys(temas).map((t) => (
+                  <option key={t} value={t}>
+                    {t}
                   </option>
                 ))}
               </select>
+              {form.tema === "personalizado" && (
+                <input
+                  type="text"
+                  name="temaPersonalizado"
+                  value={form.temaPersonalizado}
+                  onChange={handleChange}
+                  placeholder="Descreva o tema"
+                  className="mt-2 w-full border border-blue-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-950"
+                />
+              )}
             </div>
           </div>
 
-          {form.tema === "personalizado" && (
-            <div>
-              <label className="block text-sm font-medium text-blue-900 mb-1">
-                Descreva seu tema
-              </label>
-              <input
-                type="text"
-                name="temaPersonalizado"
-                placeholder="Ex: Festa futurista com robôs dançantes e LED por todo lado"
-                value={form.temaPersonalizado}
-                onChange={handleChange}
-                className="w-full border border-blue-100 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-950"
-              />
-            </div>
-          )}
-
           <div>
             <label className="block text-sm font-medium text-blue-900 mb-1">
-              Mensagem adicional
+              Recado aos Convidados
             </label>
             <textarea
               name="mensagem"
@@ -210,7 +278,6 @@ export default function Mimaqui() {
               rows="3"
             />
           </div>
-
           <div className="flex flex-col gap-4 md:flex-row md:justify-between items-center">
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -220,130 +287,141 @@ export default function Mimaqui() {
             >
               Verificar Valores
             </motion.button>
-
             <button
               type="button"
               onClick={() => setShowModal(true)}
               className="text-sm text-blue-800 hover:underline flex items-center gap-1"
             >
-              <Info className="w-4 h-4" /> Ver tabela de preços
+              <Info className="w-4 h-4" />
+              Ver tabela de preços
             </button>
           </div>
         </form>
-
         {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
-            <div
-              className="bg-white p-6 rounded-2xl shadow-xl w-[90%] max-w-xl backdrop-blur-lg"
-              style={{
-                backgroundImage: `url(${bgTextura})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                backgroundColor: "rgba(255, 255, 255, 0.6)", // Fundo mais claro
-              }}
-            >
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50">
+            <div className="relative w-[90%] max-w-xl bg-gradient-to-br from-blue-950 to-blue-800 text-white rounded-2xl shadow-2xl border border-blue-700 p-6">
               {resumo ? (
-                <div>
-                  <h3 className="text-lg font-semibold text-blue-950 mb-4">
-                    Resumo da Simulação
+                <>
+                  <h3 className="text-2xl font-bold mb-6 text-center">
+                    🎉 Detalhes do Evento
                   </h3>
-                  <ul className="text-sm space-y-2">
+                  <ul className="space-y-3 text-sm leading-relaxed">
                     <li>
-                      <span className="font-semibold text-blue-950">Nome:</span>{" "}
-                      <span className="text-blue-600">{form.nome}</span>
-                    </li>
-                    <li>
-                      <span className="font-semibold text-blue-950">
-                        Email:
+                      <span className="font-semibold text-blue-200">
+                        👤 Organizador:
                       </span>{" "}
-                      <span className="text-blue-600">{form.email}</span>
+                      {form.organizadorNome}
                     </li>
                     <li>
-                      <span className="font-semibold text-blue-950">
-                        Data do Evento:
+                      <span className="font-semibold text-blue-200">
+                        📧 Email:
                       </span>{" "}
-                      <span className="text-blue-600">{form.data}</span>
+                      {form.organizadorEmail}
                     </li>
                     <li>
-                      <span className="font-semibold text-blue-950">
-                        Tipo de Evento:
+                      <span className="font-semibold text-blue-200">
+                        📅 Data:
                       </span>{" "}
-                      <span className="text-blue-600">{form.tipo}</span>
+                      {form.data}
                     </li>
                     <li>
-                      <span className="font-semibold text-blue-950">
-                        Convidados:
+                      <span className="font-semibold text-blue-200">
+                        ⏰ Horário:
                       </span>{" "}
-                      <span className="text-blue-600">
-                        {resumo.convidados} (R$ {resumo.precoPorConvidado})
-                      </span>
+                      {form.hora}
                     </li>
                     <li>
-                      <span className="font-semibold text-blue-950">Tema:</span>{" "}
-                      <span className="text-blue-600">
-                        {form.tema} (R$ {resumo.precoTema})
-                      </span>
+                      <span className="font-semibold text-blue-200">
+                        🎯 Tipo:
+                      </span>{" "}
+                      {form.tipo}
+                    </li>
+                    <li>
+                      <span className="font-semibold text-blue-200">
+                        👥 Convidados:
+                      </span>{" "}
+                      {resumo.convidados} (R$ {resumo.precoPorConvidado})
+                    </li>
+                    <li>
+                      <span className="font-semibold text-blue-200">
+                        🎨 Tema:
+                      </span>{" "}
+                      {form.tema === "personalizado"
+                        ? form.temaPersonalizado
+                        : form.tema}{" "}
+                      (R$ {resumo.precoTema})
                     </li>
                     {resumo.acrescimoUrgencia > 0 && (
                       <li>
-                        <span className="font-semibold text-blue-950">
-                          Urgência:
+                        <span className="font-semibold text-blue-200">
+                          ⚡ Urgência:
                         </span>{" "}
-                        <span className="text-blue-600">
-                          +R$ {resumo.acrescimoUrgencia}
-                        </span>
+                        +R$ {resumo.acrescimoUrgencia}
                       </li>
                     )}
-                    <li className="font-bold text-blue-950 mt-2">
-                      <span className="font-semibold">Total estimado:</span>{" "}
-                      <span className="text-blue-600">R$ {resumo.total}</span>
+                    <li className="text-lg font-bold text-blue-100 border-t border-blue-600 pt-3">
+                      💰 Total:{" "}
+                      <span className="text-white">R$ {resumo.total}</span>
                     </li>
-                    <li className="text-xs text-blue-600 italic">
-                      * Serviços adicionais não estão inclusos neste valor.
+                    <li className="text-xs text-blue-300 italic pt-1">
+                      * Token: {resumo.token}
                     </li>
                   </ul>
-                </div>
+                  <button
+                    onClick={() => {
+                      setShowModal(false);
+                      setResumo(null);
+                    }}
+                    className="mt-6 w-full bg-white text-blue-950 font-semibold py-2 px-4 rounded-xl hover:bg-blue-100 transition"
+                  >
+                    Fechar
+                  </button>
+                </>
               ) : (
-                <div>
-                  <h3 className="text-lg font-semibold text-blue-950 mb-4">
-                    Tabela de Preços
+                <>
+                  <h3 className="text-2xl font-bold mb-6 text-center">
+                    📊 Tabela de Preços
                   </h3>
-                  <ul className="text-sm space-y-2">
+                  <ul className="space-y-3 text-sm leading-relaxed">
                     <li>
-                      <span className="font-semibold text-blue-950">
-                        Convidado:
+                      <span className="font-semibold text-blue-200">
+                        👥 Valor por convidado:
                       </span>{" "}
-                      <span className="text-blue-600">
-                        R$ {valoresPorConvidado} por pessoa
-                      </span>
+                      R$ {valoresPorConvidado}
                     </li>
-                    <h4 className="font-semibold text-blue-950">Temas:</h4>
-                    {Object.entries(temas).map(([tema, valor]) => (
-                      <li key={tema}>
-                        <span className="font-semibold text-blue-950">
-                          {tema}:
-                        </span>{" "}
-                        <span className="text-blue-600">R$ {valor}</span>
-                      </li>
-                    ))}
-                    <li className="font-semibold text-blue-950">
-                      <span className="font-semibold">
-                        Urgência (evento em até 15 dias):
+                    <li>
+                      <span className="font-semibold text-blue-200">
+                        🎨 Temas disponíveis:
+                      </span>
+                      <ul className="ml-4 mt-2 space-y-1 list-disc list-inside text-blue-100">
+                        {Object.entries(temas).map(([t, v]) => (
+                          <li key={t} className="capitalize">
+                            {t}: R$ {v}
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+                    <li className="pt-3">
+                      <span className="font-semibold text-blue-200">
+                        ⚡ Urgência:
                       </span>{" "}
-                      <span className="text-blue-600">+R$ 300</span>
+                      Eventos com menos de 15 dias +R$ 300
                     </li>
                   </ul>
-                </div>
+                  <p className="text-xs text-blue-300 italic mt-4">
+                    * Os valores simulados são estimativas.
+                  </p>
+                  <button
+                    onClick={() => {
+                      setShowModal(false);
+                      setResumo(null);
+                    }}
+                    className="mt-6 w-full bg-white text-blue-950 font-semibold py-2 px-4 rounded-xl hover:bg-blue-100 transition"
+                  >
+                    Fechar
+                  </button>
+                </>
               )}
-              <button
-                onClick={() => {
-                  setShowModal(false);
-                  setResumo(null);
-                }}
-                className="mt-6 bg-blue-950 text-white py-2 px-4 rounded-xl hover:bg-blue-900"
-              >
-                Fechar
-              </button>
             </div>
           </div>
         )}
