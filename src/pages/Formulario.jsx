@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Info } from "lucide-react";
 import bgTextura from "../assets/imagens/bg-textura.png";
-
 export default function Formulario() {
   const [form, setForm] = useState({
     organizadorNome: "",
@@ -253,16 +252,28 @@ export default function Formulario() {
                   </option>
                 ))}
               </select>
-              {form.tema === "personalizado" && (
-                <input
-                  type="text"
-                  name="temaPersonalizado"
-                  value={form.temaPersonalizado}
-                  onChange={handleChange}
-                  placeholder="Descreva o tema"
-                  className="mt-2 w-full border border-blue-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-950"
-                />
-              )}
+
+              <AnimatePresence mode="wait">
+                {form.tema === "personalizado" && (
+                  <motion.div
+                    key="temaInput"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <input
+                      type="text"
+                      name="temaPersonalizado"
+                      value={form.temaPersonalizado}
+                      onChange={handleChange}
+                      placeholder="Descreva seu tema"
+                      className="mt-2 w-full border border-blue-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-950"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 
