@@ -18,6 +18,8 @@ export default function Formulario() {
   const [resumo, setResumo] = useState(null);
   const [convidados, setConvidados] = useState([]);
   const [inputConvidado, setInputConvidado] = useState("");
+  const [pagamentoConfirmado, setPagamentoConfirmado] = useState(false);
+  const [resumoValores, setResumoValores] = useState(null);
 
   const valoresPorConvidado = 120;
   const temas = {
@@ -55,9 +57,7 @@ export default function Formulario() {
     setForm((prev) => ({ ...prev, [name]: value }));
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-
+  async function enviarAgendamento() {
     const emailsValidos = convidados
       .map((email) => email.trim())
       .filter((email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
@@ -67,7 +67,22 @@ export default function Formulario() {
       return;
     }
 
-    const resumoValores = calcularPreco();
+    const count = emailsValidos.length;
+    const precoTema = temas[form.tema] || 0;
+    const hoje = new Date();
+    const dataEvento = new Date(form.data);
+    const dias = (dataEvento - hoje) / (1000 * 60 * 60 * 24);
+    const urg = dias <= 15 ? 300 : 0;
+    const total = count * valoresPorConvidado + precoTema + urg;
+
+    const resumoValores = {
+      convidados: count,
+      precoPorConvidado: count * valoresPorConvidado,
+      precoTema,
+      acrescimoUrgencia: urg,
+      total,
+    };
+
     const payload = {
       nome: form.organizadorNome,
       organizadorEmail: form.organizadorEmail,
@@ -85,13 +100,6 @@ export default function Formulario() {
       body: JSON.stringify(payload),
     });
 
-    if (!res.ok) {
-      const msg = await res.text();
-      console.error("Erro backend:", msg);
-      alert("Erro ao enviar agendamento.");
-      return;
-    }
-
     const data = await res.json().catch(() => ({}));
     if (!data.token) {
       alert("Erro ao agendar. Verifique os dados e tente novamente.");
@@ -100,6 +108,36 @@ export default function Formulario() {
 
     setResumo({ ...resumoValores, token: data.token });
     setShowModal(true);
+  }
+
+  async function handleSubmitFake() {
+    const payload = {
+      nome: form.organizadorNome,
+      organizadorEmail: form.organizadorEmail,
+      data: form.data,
+      horario: form.hora,
+      tipo: form.tipo,
+      info: form.mensagem,
+      tema: form.tema === "personalizado" ? form.temaPersonalizado : form.tema,
+      convidados: convidados.map((email) => ({
+        nome: "",
+        email: email.trim(),
+      })),
+    };
+
+    const res = await fetch("http://localhost:3000/agendamento", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!data.token) {
+      alert("Erro ao agendar");
+      return;
+    }
+
+    setResumo({ ...resumoValores, token: data.token });
   }
 
   return (
@@ -111,10 +149,13 @@ export default function Formulario() {
         <h2 className="text-center text-4xl font-extrabold text-blue-950 mb-8">
           Verifique os Valores ✨
         </h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-blue-900 mb-1">
+              <label
+                required
+                className="block text-sm font-medium text-blue-900 mb-1"
+              >
                 Nome do Organizador
               </label>
               <input
@@ -291,13 +332,39 @@ export default function Formulario() {
           </div>
           <div className="flex flex-col gap-4 md:flex-row md:justify-between items-center">
             <motion.button
+              type="button"
+              onClick={() => {
+                const camposObrigatorios = [
+                  form.organizadorNome,
+                  form.organizadorEmail,
+                  form.data,
+                  form.hora,
+                  form.tipo,
+                  form.tema,
+                  form.tema === "personalizado" ? form.temaPersonalizado : "ok",
+                  convidados.length > 0 ? "ok" : "",
+                ];
+
+                const tudoPreenchido = camposObrigatorios.every(Boolean);
+
+                if (!tudoPreenchido) {
+                  alert(
+                    "Preencha todos os campos antes de verificar os valores."
+                  );
+                  return;
+                }
+
+                const resumo = calcularPreco();
+                setResumoValores(resumo);
+                setShowModal(true);
+              }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              type="submit"
               className="w-full md:w-auto bg-blue-950 text-white font-semibold py-3 px-6 rounded-xl shadow-md hover:bg-blue-900 transition"
             >
               Verificar Valores
             </motion.button>
+
             <button
               type="button"
               onClick={() => setShowModal(true)}
@@ -309,9 +376,21 @@ export default function Formulario() {
           </div>
         </form>
         {showModal && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50">
-            <div className="relative w-[90%] max-w-xl bg-gradient-to-br from-blue-950 to-blue-800 text-white rounded-2xl shadow-2xl border border-blue-700 p-6">
-              {resumo ? (
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50"
+            onClick={() => {
+              setShowModal(false);
+              setResumo(null);
+              setResumoValores(null);
+              setPagamentoConfirmado(false);
+            }}
+          >
+            <div
+              className="relative w-[90%] max-w-xl bg-gradient-to-br from-blue-950 to-blue-800 text-white rounded-2xl shadow-2xl border border-blue-700 p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* MODAL DE DETALHES APÓS PAGAMENTO */}
+              {pagamentoConfirmado && resumo && (
                 <>
                   <h3 className="text-2xl font-bold mb-6 text-center">
                     🎉 Detalhes do Evento
@@ -382,13 +461,57 @@ export default function Formulario() {
                     onClick={() => {
                       setShowModal(false);
                       setResumo(null);
+                      setPagamentoConfirmado(false);
                     }}
                     className="mt-6 w-full bg-white text-blue-950 font-semibold py-2 px-4 rounded-xl hover:bg-blue-100 transition"
                   >
                     Fechar
                   </button>
                 </>
-              ) : (
+              )}
+
+              {/* MODAL DE SIMULAÇÃO DE PAGAMENTO */}
+              {!pagamentoConfirmado && resumoValores && (
+                <>
+                  <h3 className="text-3xl font-bold text-center text-white mb-6">
+                    💳 Pagamento
+                  </h3>
+
+                  <div className="bg-white/10 p-4 rounded-xl space-y-3 border border-blue-700">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-blue-200">Tema:</span>
+                      <span className="font-medium text-white">
+                        {form.tema}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-blue-200">Convidados:</span>
+                      <span className="font-medium text-white">
+                        {convidados.length}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-base font-bold border-t border-blue-700 pt-3">
+                      <span className="text-blue-100">Total:</span>
+                      <span className="text-white">
+                        R$ {resumoValores.total}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={async () => {
+                      await enviarAgendamento();
+                      setPagamentoConfirmado(true);
+                    }}
+                    className="mt-6 w-full bg-gradient-to-r from-green-400 to-green-600 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:opacity-90 transition"
+                  >
+                    💰 Pagar agora
+                  </button>
+                </>
+              )}
+
+              {/* MODAL TABELA DE PREÇOS */}
+              {!resumoValores && (
                 <>
                   <h3 className="text-2xl font-bold mb-6 text-center">
                     📊 Tabela de Preços
@@ -426,6 +549,8 @@ export default function Formulario() {
                     onClick={() => {
                       setShowModal(false);
                       setResumo(null);
+                      setResumoValores(null);
+                      setPagamentoConfirmado(false);
                     }}
                     className="mt-6 w-full bg-white text-blue-950 font-semibold py-2 px-4 rounded-xl hover:bg-blue-100 transition"
                   >
