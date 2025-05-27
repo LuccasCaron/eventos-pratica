@@ -362,7 +362,7 @@ export default function Formulario() {
               whileTap={{ scale: 0.95 }}
               className="w-full md:w-auto bg-blue-950 text-white font-semibold py-3 px-6 rounded-xl shadow-md hover:bg-blue-900 transition"
             >
-              Verificar Valores
+              Ir para o pagamento
             </motion.button>
 
             <button
