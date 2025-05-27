@@ -26,16 +26,15 @@ export default function Formulario() {
     "balada neon": 1200,
     "anos 80": 1500,
     tropical: 1400,
-    masquerade: 1800,
+    "Navio Pirata": 1800,
     luxo: 2500,
     personalizado: 3500,
   };
 
   function calcularPreco() {
-    const lista = form.convidados
-      .split(",")
-      .map((e) => e.trim())
-      .filter((e) => e);
+   const lista = convidados
+  .map((e) => e.trim())
+  .filter((e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
     const count = lista.length;
     const hoje = new Date();
     const dataEvento = new Date(form.data);
