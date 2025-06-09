@@ -25,6 +25,7 @@ import festaPerso from "../assets/imagens/festaPerso.png";
 import fotoNoivos from "../assets/imagens/fotoNoivos.png";
 import musica from "../assets/imagens/musica.png";
 import transporte from "../assets/imagens/transporte.png";
+import TemasMaisPedidos from "./TemasMaisPedidos";
 
 export default function Home() {
   const settings = {
@@ -280,6 +281,8 @@ export default function Home() {
             </motion.div>
           </div>
         </div>
+
+ <TemasMaisPedidos />
 
         <motion.div
           className="mt-16"

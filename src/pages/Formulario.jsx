@@ -24,7 +24,7 @@ export default function Formulario() {
   const valoresPorConvidado = 120;
   const temas = {
     "balada neon": 1200,
-    "anos 80": 1500,
+    "anos 80 ⭐": 1500,
     tropical: 1400,
     "Navio Pirata": 1800,
     luxo: 2500,
@@ -32,9 +32,9 @@ export default function Formulario() {
   };
 
   function calcularPreco() {
-   const lista = convidados
-  .map((e) => e.trim())
-  .filter((e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
+    const lista = convidados
+      .map((e) => e.trim())
+      .filter((e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
     const count = lista.length;
     const hoje = new Date();
     const dataEvento = new Date(form.data);
@@ -456,6 +456,7 @@ export default function Formulario() {
                       * Token: {resumo.token}
                     </li>
                   </ul>
+
                   <button
                     onClick={() => {
                       setShowModal(false);
@@ -543,6 +544,13 @@ export default function Formulario() {
                   </ul>
                   <p className="text-xs text-blue-300 italic mt-4">
                     * Os valores simulados são estimativas.
+                  </p>
+                  <p className="text-xs text-center text-blue-300 mt-4 italic max-w-md mx-auto">
+                    Qualquer serviço adicionado (como Musica ao vivo, Convites e
+                    Papelaria Personalizada, entre outros) será considerado
+                    válido apenas após agendamento oficial do evento, e somente
+                    mediante contato via WhatsApp (11 91234-5678) ou e-mail:
+                    suporte@lleventos.com
                   </p>
                   <button
                     onClick={() => {
